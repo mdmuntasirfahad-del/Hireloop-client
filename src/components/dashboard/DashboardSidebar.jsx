@@ -1,302 +1,192 @@
-"use client";
-
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-
-import { Avatar } from "@heroui/react";
-
 import {
-    SquareChartColumn,
-    Factory,
-    Briefcase,
-    CreditCard,
-    Gear,
+    AvatarRoot,
+    AvatarImage,
+    AvatarFallback,
+    Button,
+    DrawerRoot,
+    DrawerBackdrop,
+    DrawerContent,
+    DrawerDialog,
+    DrawerHeader,
+    DrawerHeading,
+    DrawerBody,
+    DrawerCloseTrigger,
+} from "@heroui/react";
+import {
+    ArrowUpRightFromSquare,
+    CrownDiamond,
     LayoutSideContent,
+    ShieldCheck,
 } from "@gravity-ui/icons";
+import Logo from "@/components/Logo";
+import { getUserSession } from "@/lib/core/session";
+import SidebarNav from "./SidebarNav";
 
-import { useSession } from "@/lib/auth-client";
-import { Button, Drawer } from "@heroui/react";
+const planLabels = {
+    seeker_free: "Free plan",
+    seeker_pro: "Pro plan",
+    seeker_premium: "Premium plan",
+    recruiter_free: "Free plan",
+    recruiter_growth: "Growth plan",
+    recruiter_enterprise: "Enterprise plan",
+};
 
+const roleLabels = {
+    seeker: "Job seeker",
+    recruiter: "Recruiter",
+    admin: "Administrator",
+};
 
-const menuItems = [
-    {
-        name: "Dashboard",
-        href: "/dashboard/recruiter",
-        icon: SquareChartColumn,
-    },
-    {
-        name: "My Company",
-        href: "/dashboard/recruiter/my-company",
-        icon: Factory,
-    },
-    {
-        name: "Manage Jobs",
-        href: "/jobs",
-        icon: Briefcase,
-    },
-    {
-        name: "Applications",
-        href: "/applications",
-        icon: CreditCard,
-    },
-    {
-        name: "Settings",
-        href: "/settings",
-        icon: Gear,
-    },
-];
+function getPlanMeta(plan) {
+    const label = planLabels[plan] || "Free plan";
+    const isPaid = Boolean(plan && !plan.endsWith("_free"));
 
+    return { label, isPaid };
+}
 
-// ===============================
-// Navigation Menu
-// ===============================
+function ProfileCard({ user }) {
+    const { label, isPaid } = getPlanMeta(user?.plan);
+    const isAdmin = user?.role === "admin";
 
-const MenuItem = ({ pathname }) => (
-    <nav className="flex flex-col gap-1">
-        {menuItems.map((item) => {
-            const Icon = item.icon;
-
-            // Check current URL
-            const isActive = pathname === item.href;
-
-            return (
-                <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`
-                        group relative flex h-[53px] items-center gap-5
-                        px-2.5
-                        transition-colors
-                        ${
-                            isActive
-                                ? "bg-[#29292a] text-white"
-                                : "text-[#808080] hover:bg-[#1d1d1e] hover:text-white"
-                        }
-                    `}
+    return (
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
+            <div className="flex items-center gap-3">
+                <AvatarRoot
+                    size="md"
+                    className="h-10 w-10 shrink-0 border border-white/10"
                 >
-
-                    {/* Active right border */}
-                    {isActive && (
-                        <span className="absolute right-0 top-0 h-full w-[4px] bg-white" />
-                    )}
-
-                    {/* Icon */}
-                    <Icon
-                        width={24}
-                        height={24}
-                        className="shrink-0"
+                    <AvatarImage
+                        src={user?.image || "/images/profile.jpg"}
+                        alt={user?.name || "User"}
                     />
 
-                    {/* Menu name */}
-                    <span className="text-[17px] font-medium">
-                        {item.name}
-                    </span>
+                    <AvatarFallback>
+                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                </AvatarRoot>
 
-                </Link>
-            );
-        })}
-    </nav>
-);
-
-
-// ===============================
-// Logo
-// ===============================
-
-const logo = (
-    <div className="mb-10 px-0">
-        <Link
-            href="/"
-            className="text-[34px] font-bold tracking-[-1.8px]"
-        >
-            HireLoop
-        </Link>
-    </div>
-);
-
-
-// ===============================
-// Profile
-// ===============================
-
-const profile = (user) => (
-    <div className="mb-16">
-
-        <div className="flex items-center gap-3">
-
-            <Avatar
-                size="md"
-                className="h-11 w-11 shrink-0"
-            >
-                <Avatar.Image
-                    src="/images/profile.jpg"
-                    alt={user?.name || "User"}
-                />
-
-                <Avatar.Fallback>
-                    {user?.name?.charAt(0) || "U"}
-                </Avatar.Fallback>
-            </Avatar>
-
-
-            <div>
-
-                <h3 className="text-[17px] font-medium leading-5">
-                    {user?.name || user?.email || "User Name"}
-                </h3>
-
-                <p className="mt-0.5 text-[14px] text-[#858585]">
-                    {user?.role || "User Role"}
-                </p>
-
+                <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">
+                        {user?.name || user?.email || "HireLoop user"}
+                    </p>
+                    <p className="truncate text-xs text-zinc-500">
+                        {roleLabels[user?.role] || "Member"}
+                    </p>
+                </div>
             </div>
 
-        </div>
-
-
-        {/* Premium badge */}
-        <div className="mt-2.5">
-
             <span
-                className="
-                    inline-flex
-                    rounded-[4px]
-                    border
-                    border-[#686868]
-                    px-2
-                    py-[2px]
-                    text-[10px]
-                    font-semibold
-                    tracking-wide
-                    text-[#d6d6d6]
-                "
+                className={`mt-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                    isAdmin
+                        ? "border-indigo-400/30 bg-indigo-500/10 text-indigo-300"
+                        : isPaid
+                          ? "border-indigo-400/30 bg-indigo-500/10 text-indigo-300"
+                          : "border-white/10 bg-white/[0.04] text-zinc-400"
+                }`}
             >
-                PREMIUM ACCOUNT
+                {isAdmin ? (
+                    <ShieldCheck size={12} aria-hidden="true" />
+                ) : (
+                    isPaid && <CrownDiamond size={12} aria-hidden="true" />
+                )}
+                {isAdmin ? "Administrator" : label}
             </span>
-
         </div>
+    );
+}
 
-    </div>
-);
+function SidebarFooter() {
+    return (
+        <div className="border-t border-white/[0.06] pt-4">
+            <Link
+                href="/jobs"
+                className="flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
+            >
+                Browse job board
+                <ArrowUpRightFromSquare size={14} aria-hidden="true" />
+            </Link>
+        </div>
+    );
+}
 
-
-// ===============================
-// Sidebar
-// ===============================
-
-export default function DashboardSidebar() {
-
-    const pathname = usePathname();
-
-    const {
-        data: session,
-        isPending,
-        refetch,
-    } = useSession();
-
-    const user = session?.user;
-
+export default async function DashboardSidebar() {
+    const user = await getUserSession();
 
     return (
         <>
-
-            {/* =====================================
-                DESKTOP SIDEBAR
-            ===================================== */}
-
-            <aside
-                className="
-                    hidden
-                    lg:flex
-                    min-h-screen
-                    w-[282px]
-                    flex-col
-                    border-r
-                    border-[#1a1a1b]
-                    bg-[#111112]
-                    px-5
-                    py-5
-                    text-white
-                "
-            >
-
-                {/* Logo */}
-                {logo}
-
-
-                {/* Profile */}
-                {profile(user)}
-
-
-                {/* Navigation */}
-                <MenuItem pathname={pathname} />
-
-            </aside>
-
-
-            {/* =====================================
-                MOBILE DRAWER
-            ===================================== */}
-
-            <Drawer>
-
-                {/* Drawer Button */}
-
-                <Button
-                    className="lg:hidden"
-                    variant="secondary"
+            {/* Mobile top bar */}
+            <div className="sticky top-[72px] z-40 flex items-center justify-between gap-3 border-b border-white/[0.06] bg-black/80 px-4 py-3 backdrop-blur-xl lg:hidden">
+                <Link
+                    href="/"
+                    aria-label="HireLoop home"
+                    className="shrink-0"
                 >
-                    <LayoutSideContent />
-                    Sidebar
-                </Button>
+                    <Logo />
+                </Link>
 
+                <DrawerRoot>
+                    <Button
+                        variant="secondary"
+                        className="h-9 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-zinc-200"
+                    >
+                        <LayoutSideContent size={16} aria-hidden="true" />
+                        Menu
+                    </Button>
 
-                {/* Drawer */}
+                    <DrawerBackdrop>
+                        <DrawerContent
+                            placement="left"
+                            className="w-[300px] border-r border-white/10 bg-[#0d0d0f] text-white"
+                        >
+                            <DrawerDialog>
+                                <DrawerCloseTrigger />
 
-                <Drawer.Backdrop>
+                                <DrawerHeader>
+                                    <DrawerHeading>
+                                        <Logo />
+                                    </DrawerHeading>
+                                </DrawerHeader>
 
-                    <Drawer.Content placement="left">
+                                <DrawerBody>
+                                    <ProfileCard user={user} />
 
-                        <Drawer.Dialog>
+                                    <div className="mt-6">
+                                        <SidebarNav role={user?.role} />
+                                    </div>
 
-                            {/* Drawer Close */}
+                                    <div className="mt-6">
+                                        <SidebarFooter />
+                                    </div>
+                                </DrawerBody>
+                            </DrawerDialog>
+                        </DrawerContent>
+                    </DrawerBackdrop>
+                </DrawerRoot>
+            </div>
 
-                            <Drawer.CloseTrigger />
+            {/* Desktop sidebar */}
+            <aside className="fixed bottom-0 left-0 top-[72px] z-30 hidden w-[272px] flex-col border-r border-white/[0.06] bg-[#0d0d0f] px-4 py-6 lg:flex">
+                <Link
+                    href="/"
+                    aria-label="HireLoop home"
+                    className="px-2"
+                >
+                    <Logo />
+                </Link>
 
+                <div className="mt-7">
+                    <ProfileCard user={user} />
+                </div>
 
-                            {/* Drawer Header */}
+                <div className="mt-6 flex-1 overflow-y-auto pr-1">
+                    <SidebarNav role={user?.role} />
+                </div>
 
-                            <Drawer.Header>
-
-                                <Drawer.Heading>
-                                    {logo}
-                                </Drawer.Heading>
-
-                            </Drawer.Header>
-
-
-                            {/* Drawer Body */}
-
-                            <Drawer.Body>
-
-                                {/* Profile */}
-                                {profile(user)}
-
-
-                                {/* Navigation */}
-                                <MenuItem pathname={pathname} />
-
-                            </Drawer.Body>
-
-                        </Drawer.Dialog>
-
-                    </Drawer.Content>
-
-                </Drawer.Backdrop>
-
-            </Drawer>
-
+                <div className="mt-4">
+                    <SidebarFooter />
+                </div>
+            </aside>
         </>
     );
 }

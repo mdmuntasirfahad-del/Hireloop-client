@@ -1,16 +1,18 @@
-import React from 'react';
-import SignInPage from './SignInPage';
+import React, { Suspense } from "react";
+import SignInPage from "./SignInPage";
+import AuthSkeleton from "../AuthSkeleton";
 
 export const metadata = {
     title: "Sign In",
-    description: "Access your HireLoop account to explore job opportunities and connect with top companies.",
+    description:
+        "Access your HireLoop account to explore job opportunities and connect with top companies.",
 };
 
 const SignIn = () => {
     return (
-        <div>
-            <SignInPage></SignInPage>
-        </div>
+        <Suspense fallback={<AuthSkeleton />}>
+            <SignInPage />
+        </Suspense>
     );
 };
 

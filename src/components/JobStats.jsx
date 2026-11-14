@@ -43,7 +43,7 @@ export default function JobStats() {
       {/* Dark Overlay */}
       <div className="absolute  inset-0 bg-black/60" />
 
-      <div className="relative  top-50 container mx-auto px-4">
+      <div className="relative container mx-auto px-4">
         {/* Heading */}
         <div className="text-center mb-16">
           <h2 className="text-white text-2xl md:text-5xl  max-w-3xl mx-auto">

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Card, Button, TextField, Label, InputGroup, Description, Radio, RadioGroup } from '@heroui/react';
-
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { TextField, Label, InputGroup } from "@heroui/react";
 import {
     Person,
     Handset,
@@ -13,247 +13,362 @@ import {
     EyeSlash,
     CircleCheckFill,
     TriangleExclamationFill,
-} from '@gravity-ui/icons';
-import { authClient, signUp } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
+    ShieldCheck,
+    Briefcase,
+} from "@gravity-ui/icons";
+import { signUp } from "@/lib/auth-client";
+import SurfaceCard from "@/components/ui/SurfaceCard";
+import { buttonStyles } from "@/components/ui/buttonStyles";
 
+const inputGroupClass =
+    "mt-1.5 flex items-center gap-2 rounded-xl border border-white/10 bg-[#0f0f11] px-3 py-2.5 transition-colors focus-within:border-indigo-400/60 focus-within:ring-2 focus-within:ring-indigo-500/20";
+
+const inputClass =
+    "w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-600";
+
+const roleOptions = [
+    {
+        value: "seeker",
+        title: "Job seeker",
+        description: "Find and apply to roles",
+        icon: Person,
+    },
+    {
+        value: "recruiter",
+        title: "Recruiter",
+        description: "Post jobs and hire talent",
+        icon: Briefcase,
+    },
+];
 
 export default function SignUpPage() {
     const [formData, setFormData] = useState({
-        name: '',
-        phoneNumber: '',
-        email: '',
-        password: '',
-        role: 'seeker', // Default role
+        name: "",
+        phoneNumber: "",
+        email: "",
+        password: "",
+        role: "seeker",
+        plan: "seeker_free",
     });
 
     const [isVisible, setIsVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-
-    const toggleVisibility = () => setIsVisible(!isVisible);
+    const toggleVisibility = () => setIsVisible((visible) => !visible);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || "/";
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((previous) => ({
+            ...previous,
             [name]: value,
+        }));
+    };
+
+    const handleRoleChange = (role) => {
+        setFormData((previous) => ({
+            ...previous,
+            role,
+            plan: role === "seeker" ? "seeker_free" : "recruiter_free",
         }));
     };
 
     useEffect(() => {
         if (!success) return;
-        const timer = setTimeout(() => router.replace('/'), 1200);
+        const timer = setTimeout(() => router.replace(redirectTo), 1200);
         return () => clearTimeout(timer);
-    }, [success, router]);
+    }, [success, router, redirectTo]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setError("");
+        setSuccess("");
         setLoading(true);
 
         try {
-            const { data, error: authError } = await signUp.email({
+            const { error: authError } = await signUp.email({
                 email: formData.email,
                 password: formData.password,
                 name: formData.name,
                 phoneNumber: formData.phoneNumber,
                 role: formData.role,
-
+                plan: formData.plan,
             });
 
             if (authError) {
-                setError(authError.message || 'Something went wrong during sign up.');
+                setError(
+                    authError.message ||
+                        "Something went wrong during sign up."
+                );
             } else {
-                setSuccess('Account created successfully! Redirecting...');
-                setFormData({ name: '', phoneNumber: '', email: '', password: '', role: 'seeker' });
+                setSuccess("Account created successfully. Redirecting...");
+                setFormData({
+                    name: "",
+                    phoneNumber: "",
+                    email: "",
+                    password: "",
+                    role: "seeker",
+                    plan: "seeker_free",
+                });
             }
         } catch (err) {
-            setError(err.message || 'An unexpected error occurred.');
+            setError(err.message || "An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black px-4 py-8">
-            <Card className="w-full max-w-md shadow-xl border border-gray-200 dark:border-zinc-800 p-6">
-                {/* Header Section */}
-                <div className="flex flex-col gap-1 items-center pb-4 text-center">
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        Create an Account
-                    </h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Sign up to get started with our platform
-                    </p>
-                </div>
+        <SurfaceCard className="w-full p-6 sm:p-8">
+            <div className="text-center">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-300">
+                    Get started
+                </p>
+                <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                    Create your account
+                </h1>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                    Join HireLoop to find your next role or hire your next
+                    teammate.
+                </p>
+            </div>
 
-                {/* Divider */}
-                <div className="h-px bg-gray-200 dark:bg-zinc-800 my-2 w-full" />
+            <div className="mt-6 space-y-4">
+                {success && (
+                    <div
+                        role="status"
+                        aria-live="polite"
+                        className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-300"
+                    >
+                        <CircleCheckFill
+                            size={16}
+                            className="mt-0.5 shrink-0"
+                            aria-hidden="true"
+                        />
+                        <span>{success}</span>
+                    </div>
+                )}
 
-                {/* Form Body Section */}
-                <div className="py-4">
-                    {/* Success Alert */}
-                    {success && (
-                        <div className="mb-4 p-3 rounded-lg bg-success-soft text-success-soft-foreground border border-success/20 text-sm flex items-center gap-2">
-                            <CircleCheckFill className="w-5 h-5 flex-shrink-0" />
-                            <span>{success}</span>
+                {error && (
+                    <div
+                        role="alert"
+                        className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-300"
+                    >
+                        <TriangleExclamationFill
+                            size={16}
+                            className="mt-0.5 shrink-0"
+                            aria-hidden="true"
+                        />
+                        <span>{error}</span>
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <TextField isRequired fullWidth>
+                        <Label className="text-xs font-medium text-zinc-300">
+                            Full name
+                        </Label>
+                        <InputGroup className={inputGroupClass}>
+                            <InputGroup.Prefix>
+                                <Person
+                                    size={16}
+                                    className="pointer-events-none text-zinc-500"
+                                    aria-hidden="true"
+                                />
+                            </InputGroup.Prefix>
+                            <InputGroup.Input
+                                type="text"
+                                name="name"
+                                autoComplete="name"
+                                placeholder="Enter your name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className={inputClass}
+                            />
+                        </InputGroup>
+                    </TextField>
+
+                    <TextField isRequired fullWidth>
+                        <Label className="text-xs font-medium text-zinc-300">
+                            Phone number
+                        </Label>
+                        <InputGroup className={inputGroupClass}>
+                            <InputGroup.Prefix>
+                                <Handset
+                                    size={16}
+                                    className="pointer-events-none text-zinc-500"
+                                    aria-hidden="true"
+                                />
+                            </InputGroup.Prefix>
+                            <InputGroup.Input
+                                type="tel"
+                                name="phoneNumber"
+                                autoComplete="tel"
+                                inputMode="tel"
+                                placeholder="+1 (555) 000-0000"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                className={inputClass}
+                            />
+                        </InputGroup>
+                    </TextField>
+
+                    <div>
+                        <p className="text-xs font-medium text-zinc-300">
+                            I&apos;m joining as
+                        </p>
+
+                        <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            {roleOptions.map(
+                                ({ value, title, description, icon: Icon }) => {
+                                    const isActive = formData.role === value;
+
+                                    return (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            onClick={() =>
+                                                handleRoleChange(value)
+                                            }
+                                            aria-pressed={isActive}
+                                            className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 ${
+                                                isActive
+                                                    ? "border-indigo-400/60 bg-indigo-500/10"
+                                                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                                            }`}
+                                        >
+                                            <span
+                                                className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
+                                                    isActive
+                                                        ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-300"
+                                                        : "border-white/10 bg-white/[0.04] text-zinc-500"
+                                                }`}
+                                            >
+                                                <Icon
+                                                    size={14}
+                                                    aria-hidden="true"
+                                                />
+                                            </span>
+
+                                            <span className="min-w-0">
+                                                <span className="block text-xs font-semibold text-white">
+                                                    {title}
+                                                </span>
+                                                <span className="mt-0.5 block text-[11px] text-zinc-500">
+                                                    {description}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    );
+                                }
+                            )}
                         </div>
-                    )}
+                    </div>
 
-                    {/* Error Alert */}
-                    {error && (
-                        <div className="mb-4 p-3 rounded-lg bg-danger-soft text-danger-soft-foreground border border-danger/20 text-sm flex items-center gap-2">
-                            <TriangleExclamationFill className="w-5 h-5 flex-shrink-0" />
-                            <span>{error}</span>
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        {/* Full Name Input */}
-                        <TextField isRequired fullWidth>
-                            <Label>Full Name</Label>
-                            <InputGroup>
-                                <InputGroup.Prefix>
-                                    <Person className="text-gray-400 dark:text-gray-500 text-xl pointer-events-none" />
-                                </InputGroup.Prefix>
-                                <InputGroup.Input
-                                    type="text"
-                                    name="name"
-                                    placeholder="Enter your name"
-                                    value={formData.name}
-                                    onChange={handleChange}
+                    <TextField isRequired fullWidth>
+                        <Label className="text-xs font-medium text-zinc-300">
+                            Email address
+                        </Label>
+                        <InputGroup className={inputGroupClass}>
+                            <InputGroup.Prefix>
+                                <At
+                                    size={16}
+                                    className="pointer-events-none text-zinc-500"
+                                    aria-hidden="true"
                                 />
-                            </InputGroup>
-                        </TextField>
+                            </InputGroup.Prefix>
+                            <InputGroup.Input
+                                type="email"
+                                name="email"
+                                autoComplete="email"
+                                spellCheck={false}
+                                placeholder="you@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={inputClass}
+                            />
+                        </InputGroup>
+                    </TextField>
 
-                        {/* Phone Number Input */}
-                        <TextField isRequired fullWidth>
-                            <Label>Phone Number</Label>
-                            <InputGroup>
-                                <InputGroup.Prefix>
-                                    <Handset className="text-gray-400 dark:text-gray-500 text-xl pointer-events-none" />
-                                </InputGroup.Prefix>
-                                <InputGroup.Input
-                                    type="tel"
-                                    name="phoneNumber"
-                                    placeholder="+1 (555) 000-0000"
-                                    value={formData.phoneNumber}
-                                    onChange={handleChange}
+                    <TextField isRequired fullWidth>
+                        <Label className="text-xs font-medium text-zinc-300">
+                            Password
+                        </Label>
+                        <InputGroup className={inputGroupClass}>
+                            <InputGroup.Prefix>
+                                <Lock
+                                    size={16}
+                                    className="pointer-events-none text-zinc-500"
+                                    aria-hidden="true"
                                 />
-                            </InputGroup>
-                        </TextField>
+                            </InputGroup.Prefix>
+                            <InputGroup.Input
+                                type={isVisible ? "text" : "password"}
+                                name="password"
+                                autoComplete="new-password"
+                                placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className={inputClass}
+                            />
+                            <InputGroup.Suffix>
+                                <button
+                                    type="button"
+                                    onClick={toggleVisibility}
+                                    aria-label={
+                                        isVisible
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
+                                    aria-pressed={isVisible}
+                                    className="rounded-md p-0.5 text-zinc-500 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
+                                >
+                                    {isVisible ? (
+                                        <EyeSlash
+                                            size={16}
+                                            aria-hidden="true"
+                                        />
+                                    ) : (
+                                        <Eye
+                                            size={16}
+                                            aria-hidden="true"
+                                        />
+                                    )}
+                                </button>
+                            </InputGroup.Suffix>
+                        </InputGroup>
+                    </TextField>
 
-                        {/* Role Selection */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`${buttonStyles.primary} mt-2 w-full disabled:cursor-not-allowed disabled:opacity-60`}
+                    >
+                        {loading ? "Creating account..." : "Create account"}
+                    </button>
+                </form>
+            </div>
 
-                        <div className="flex flex-col gap-4">
-                            <Label>Select Role</Label>
-                            <RadioGroup
-                                value={formData.role}
-                                onChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}
-                                defaultValue="seeker" name="role" orientation="horizontal">
-                                <Radio value="seeker">
-                                    <Radio.Content>
-                                        <Radio.Control>
-                                            <Radio.Indicator />
-                                        </Radio.Control>
-                                        Seeker
-                                    </Radio.Content>
-                                    <Description>For finding jobs</Description>
-                                </Radio>
-                                <Radio value="recruiter">
-                                    <Radio.Content>
-                                        <Radio.Control>
-                                            <Radio.Indicator />
-                                        </Radio.Control>
-                                        Recruiter
-                                    </Radio.Content>
-                                    <Description>Advanced reporting</Description>
-                                </Radio>
-                            </RadioGroup>
-                        </div>
+            <div className="mt-6 border-t border-white/[0.06] pt-5 text-center text-sm text-zinc-500">
+                Already have an account?{" "}
+                <Link
+                    href={`/auth/signin?redirect=${encodeURIComponent(
+                        redirectTo
+                    )}`}
+                    className="font-semibold text-indigo-300 transition-colors hover:text-indigo-200"
+                >
+                    Sign in
+                </Link>
+            </div>
 
-                        {/* Email Input */}
-                        <TextField isRequired fullWidth>
-                            <Label>Email Address</Label>
-                            <InputGroup>
-                                <InputGroup.Prefix>
-                                    <At className="text-gray-400 dark:text-gray-500 text-xl pointer-events-none" />
-                                </InputGroup.Prefix>
-                                <InputGroup.Input
-                                    type="email"
-                                    name="email"
-                                    placeholder="you@example.com"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                />
-                            </InputGroup>
-                        </TextField>
-
-                        {/* Password Input */}
-                        <TextField isRequired fullWidth>
-                            <Label>Password</Label>
-                            <InputGroup>
-                                <InputGroup.Prefix>
-                                    <Lock className="text-gray-400 dark:text-gray-500 text-xl pointer-events-none" />
-                                </InputGroup.Prefix>
-                                <InputGroup.Input
-                                    type={isVisible ? 'text' : 'password'}
-                                    name="password"
-                                    placeholder="••••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                />
-                                <InputGroup.Suffix>
-                                    <button
-                                        type="button"
-                                        onClick={toggleVisibility}
-                                        className="focus:outline-none text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                        aria-label="toggle password visibility"
-                                    >
-                                        {isVisible ? (
-                                            <EyeSlash className="text-xl pointer-events-none" />
-                                        ) : (
-                                            <Eye className="text-xl pointer-events-none" />
-                                        )}
-                                    </button>
-                                </InputGroup.Suffix>
-                            </InputGroup>
-                        </TextField>
-
-                        {/* Submit Button */}
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="lg"
-                            className="w-full mt-2 font-medium"
-                            isPending={loading}
-                        >
-                            Sign Up
-                        </Button>
-                    </form>
-                </div>
-
-                {/* Divider */}
-                <div className="h-px bg-gray-200 dark:bg-zinc-800 my-2 w-full" />
-
-                {/* Footer Navigation Section */}
-                <div className="flex justify-center pt-4 text-center">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Already have an account?{' '}
-                        <Link
-                            href="/auth/signin"
-                            className="text-primary font-semibold hover:underline transition-all"
-                        >
-                            Sign In
-                        </Link>
-                    </p>
-                </div>
-            </Card>
-        </div>
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-zinc-600">
+                <ShieldCheck size={13} aria-hidden="true" />
+                Your information is kept private and secure
+            </p>
+        </SurfaceCard>
     );
 }

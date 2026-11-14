@@ -1,34 +1,34 @@
-import React from 'react';
-import { Card } from '@heroui/react';
-import {
-  FileText,
-  Persons,
-  Bolt,
-  CircleCheck,
-} from '@gravity-ui/icons';
+import SurfaceCard from "@/components/ui/SurfaceCard";
 
 /**
- * Single Stat Card Component
+ * Single stat card used across dashboard overview pages.
  */
-export function StatCard({ title, value, icon: Icon }) {
-  return (
-    <Card className="p-5  bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col justify-between gap-6 shadow-md transition-all hover:border-zinc-700">
-      {/* Icon Badge */}
-      <div>
-        <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700/50 flex items-center justify-center text-zinc-300">
-          {Icon && <Icon className="w-5 h-5" />}
-        </div>
-      </div>
+export function StatCard({ title, value, icon: Icon, hint }) {
+    return (
+        <SurfaceCard className="p-5">
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="text-xs font-medium text-zinc-500">
+                        {title}
+                    </p>
 
-      {/* Title & Value */}
-      <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-zinc-400 tracking-wide">
-          {title}
-        </span>
-        <span className="text-2xl font-bold text-white tracking-tight">
-          {value}
-        </span>
-      </div>
-    </Card>
-  );
+                    <p className="mt-2 truncate text-2xl font-semibold tracking-tight text-white">
+                        {value}
+                    </p>
+                </div>
+
+                {Icon && (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-300">
+                        <Icon size={18} aria-hidden="true" />
+                    </span>
+                )}
+            </div>
+
+            {hint && (
+                <p className="mt-3 border-t border-white/[0.06] pt-3 text-[11px] leading-relaxed text-zinc-500">
+                    {hint}
+                </p>
+            )}
+        </SurfaceCard>
+    );
 }

@@ -1,3 +1,33 @@
 @import "tailwindcss";
-@import "@heroui/styles"; 
+@import "@heroui/styles";
 
+@theme {
+  --color-surface: #0a0a0b;
+  --color-surface-raised: #141416;
+  --color-line: #27272a;
+  --color-accent: #6366f1;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: #fff;
+}
+
+::selection {
+  background-color: rgb(99 102 241 / 0.35);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

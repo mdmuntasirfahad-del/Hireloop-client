@@ -1,15 +1,11 @@
-import React from 'react';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 
 const DashboardLayout = ({ children }) => {
     return (
-        <div className="flex min-h-screen dark:bg-black">
+        <div className="min-h-[calc(100vh-72px)] bg-surface text-white">
+            <DashboardSidebar />
 
-            <DashboardSidebar></DashboardSidebar>
-            <main className="flex-1">
-                {children}
-            </main>
-
+            <div className="min-w-0 lg:pl-[272px]">{children}</div>
         </div>
     );
 };

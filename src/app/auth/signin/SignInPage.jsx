@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Card, Button, TextField, Label, InputGroup } from '@heroui/react';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { TextField, Label, InputGroup } from "@heroui/react";
 import {
     At,
     Lock,
@@ -11,174 +11,216 @@ import {
     EyeSlash,
     CircleCheckFill,
     TriangleExclamationFill,
-} from '@gravity-ui/icons';
-import { signIn } from '@/lib/auth-client';
+    ShieldCheck,
+} from "@gravity-ui/icons";
+import { signIn } from "@/lib/auth-client";
+import SurfaceCard from "@/components/ui/SurfaceCard";
+import { buttonStyles } from "@/components/ui/buttonStyles";
 
 export default function SignInPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
+        email: "",
+        password: "",
     });
+
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || "/";
 
     const [isVisible, setIsVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-    const toggleVisibility = () => setIsVisible(!isVisible);
+    const toggleVisibility = () => setIsVisible((visible) => !visible);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((previous) => ({
+            ...previous,
             [name]: value,
         }));
     };
 
     useEffect(() => {
         if (!success) return;
-        const timer = setTimeout(() => router.push('/'), 1200);
+        const timer = setTimeout(() => router.push(redirectTo), 1200);
         return () => clearTimeout(timer);
-    }, [success, router]);
+    }, [success, router, redirectTo]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setError("");
+        setSuccess("");
         setLoading(true);
 
         try {
-            const { data, error: authError } = await signIn.email({
+            const { error: authError } = await signIn.email({
                 email: formData.email,
                 password: formData.password,
             });
 
             if (authError) {
-                setError(authError.message || 'Something went wrong during sign in.');
+                setError(
+                    authError.message ||
+                        "Something went wrong during sign in."
+                );
             } else {
-                setSuccess('Signed in successfully! Redirecting...');
-                setFormData({ email: '', password: '' });
+                setSuccess("Signed in successfully. Redirecting...");
+                setFormData({ email: "", password: "" });
             }
         } catch (err) {
-            setError(err.message || 'An unexpected error occurred.');
+            setError(err.message || "An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black px-4 py-8">
-            <Card className="w-full max-w-md shadow-xl border border-gray-200 dark:border-zinc-800 p-6">
-                {/* Header Section */}
-                <div className="flex flex-col gap-1 items-center pb-4 text-center">
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        Welcome Back
-                    </h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Sign in to continue to your account
-                    </p>
-                </div>
+        <SurfaceCard className="w-full p-6 sm:p-8">
+            <div className="text-center">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-300">
+                    Welcome back
+                </p>
+                <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                    Sign in to HireLoop
+                </h1>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                    Continue to your dashboard, saved jobs, and applications.
+                </p>
+            </div>
 
-                {/* Divider */}
-                <div className="h-px bg-gray-200 dark:bg-zinc-800 my-2 w-full" />
+            <div className="mt-6 space-y-4">
+                {success && (
+                    <div
+                        role="status"
+                        aria-live="polite"
+                        className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-300"
+                    >
+                        <CircleCheckFill
+                            size={16}
+                            className="mt-0.5 shrink-0"
+                            aria-hidden="true"
+                        />
+                        <span>{success}</span>
+                    </div>
+                )}
 
-                {/* Form Body Section */}
-                <div className="py-4">
-                    {/* Success Alert */}
-                    {success && (
-                        <div className="mb-4 p-3 rounded-lg bg-success-soft text-success-soft-foreground border border-success/20 text-sm flex items-center gap-2">
-                            <CircleCheckFill className="w-5 h-5 flex-shrink-0" />
-                            <span>{success}</span>
-                        </div>
-                    )}
+                {error && (
+                    <div
+                        role="alert"
+                        className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-300"
+                    >
+                        <TriangleExclamationFill
+                            size={16}
+                            className="mt-0.5 shrink-0"
+                            aria-hidden="true"
+                        />
+                        <span>{error}</span>
+                    </div>
+                )}
 
-                    {/* Error Alert */}
-                    {error && (
-                        <div className="mb-4 p-3 rounded-lg bg-danger-soft text-danger-soft-foreground border border-danger/20 text-sm flex items-center gap-2">
-                            <TriangleExclamationFill className="w-5 h-5 flex-shrink-0" />
-                            <span>{error}</span>
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        {/* Email Input */}
-                        <TextField isRequired fullWidth>
-                            <Label>Email Address</Label>
-                            <InputGroup>
-                                <InputGroup.Prefix>
-                                    <At className="text-gray-400 dark:text-gray-500 text-xl pointer-events-none" />
-                                </InputGroup.Prefix>
-                                <InputGroup.Input
-                                    type="email"
-                                    name="email"
-                                    placeholder="you@example.com"
-                                    value={formData.email}
-                                    onChange={handleChange}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <TextField isRequired fullWidth>
+                        <Label className="text-xs font-medium text-zinc-300">
+                            Email address
+                        </Label>
+                        <InputGroup className="mt-1.5 flex items-center gap-2 rounded-xl border border-white/10 bg-[#0f0f11] px-3 py-2.5 transition-colors focus-within:border-indigo-400/60 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                            <InputGroup.Prefix>
+                                <At
+                                    size={16}
+                                    className="pointer-events-none text-zinc-500"
+                                    aria-hidden="true"
                                 />
-                            </InputGroup>
-                        </TextField>
+                            </InputGroup.Prefix>
+                            <InputGroup.Input
+                                type="email"
+                                name="email"
+                                autoComplete="email"
+                                spellCheck={false}
+                                placeholder="you@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-600"
+                            />
+                        </InputGroup>
+                    </TextField>
 
-                        {/* Password Input */}
-                        <TextField isRequired fullWidth>
-                            <Label>Password</Label>
-                            <InputGroup>
-                                <InputGroup.Prefix>
-                                    <Lock className="text-gray-400 dark:text-gray-500 text-xl pointer-events-none" />
-                                </InputGroup.Prefix>
-                                <InputGroup.Input
-                                    type={isVisible ? 'text' : 'password'}
-                                    name="password"
-                                    placeholder="••••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
+                    <TextField isRequired fullWidth>
+                        <Label className="text-xs font-medium text-zinc-300">
+                            Password
+                        </Label>
+                        <InputGroup className="mt-1.5 flex items-center gap-2 rounded-xl border border-white/10 bg-[#0f0f11] px-3 py-2.5 transition-colors focus-within:border-indigo-400/60 focus-within:ring-2 focus-within:ring-indigo-500/20">
+                            <InputGroup.Prefix>
+                                <Lock
+                                    size={16}
+                                    className="pointer-events-none text-zinc-500"
+                                    aria-hidden="true"
                                 />
-                                <InputGroup.Suffix>
-                                    <button
-                                        type="button"
-                                        onClick={toggleVisibility}
-                                        className="focus:outline-none text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                        aria-label="toggle password visibility"
-                                    >
-                                        {isVisible ? (
-                                            <EyeSlash className="text-xl pointer-events-none" />
-                                        ) : (
-                                            <Eye className="text-xl pointer-events-none" />
-                                        )}
-                                    </button>
-                                </InputGroup.Suffix>
-                            </InputGroup>
-                        </TextField>
+                            </InputGroup.Prefix>
+                            <InputGroup.Input
+                                type={isVisible ? "text" : "password"}
+                                name="password"
+                                autoComplete="current-password"
+                                placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-600"
+                            />
+                            <InputGroup.Suffix>
+                                <button
+                                    type="button"
+                                    onClick={toggleVisibility}
+                                    aria-label={
+                                        isVisible
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
+                                    aria-pressed={isVisible}
+                                    className="rounded-md p-0.5 text-zinc-500 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
+                                >
+                                    {isVisible ? (
+                                        <EyeSlash
+                                            size={16}
+                                            aria-hidden="true"
+                                        />
+                                    ) : (
+                                        <Eye
+                                            size={16}
+                                            aria-hidden="true"
+                                        />
+                                    )}
+                                </button>
+                            </InputGroup.Suffix>
+                        </InputGroup>
+                    </TextField>
 
-                        {/* Submit Button */}
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="lg"
-                            className="w-full mt-2 font-medium"
-                            isPending={loading}
-                        >
-                            Sign In
-                        </Button>
-                    </form>
-                </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`${buttonStyles.primary} mt-2 w-full disabled:cursor-not-allowed disabled:opacity-60`}
+                    >
+                        {loading ? "Signing in..." : "Sign in"}
+                    </button>
+                </form>
+            </div>
 
-                {/* Divider */}
-                <div className="h-px bg-gray-200 dark:bg-zinc-800 my-2 w-full" />
+            <div className="mt-6 border-t border-white/[0.06] pt-5 text-center text-sm text-zinc-500">
+                Don&apos;t have an account?{" "}
+                <Link
+                    href={`/auth/signup?redirect=${encodeURIComponent(
+                        redirectTo
+                    )}`}
+                    className="font-semibold text-indigo-300 transition-colors hover:text-indigo-200"
+                >
+                    Create one
+                </Link>
+            </div>
 
-                {/* Footer Navigation Section */}
-                <div className="flex justify-center pt-4 text-center">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Don&apos;t have an account?{' '}
-                        <Link
-                            href="/auth/signup"
-                            className="text-primary font-semibold hover:underline transition-all"
-                        >
-                            Sign Up
-                        </Link>
-                    </p>
-                </div>
-            </Card>
-        </div>
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-zinc-600">
+                <ShieldCheck size={13} aria-hidden="true" />
+                Secure sign-in for your HireLoop account
+            </p>
+        </SurfaceCard>
     );
 }

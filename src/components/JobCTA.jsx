@@ -46,7 +46,7 @@ export default function JobCTA() {
             Create a free account
           </NextLink>
           <NextLink
-            href="/pricing"
+            href="/plans"
             className={`${buttonVariants({ variant: "ghost", size: "sm" })} border border-white/10 !bg-zinc-950 font-medium !text-white`}
           >
             View pricing

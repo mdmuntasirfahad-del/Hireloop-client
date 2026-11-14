@@ -1,142 +1,125 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@heroui/react";
+import { useRouter } from "next/navigation";
 import {
-  Factory,
-  Briefcase,
-  LocationArrow,
+    ArrowRight,
+    CircleCheck,
+    Factory,
+    ShieldCheck,
+    Sparkles,
 } from "@gravity-ui/icons";
-
 import RegisterCompanyModal from "./RegisterCompanyModal";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
+import SurfaceCard from "@/components/ui/SurfaceCard";
+import { buttonStyles } from "@/components/ui/buttonStyles";
+
+const benefits = [
+    {
+        icon: ShieldCheck,
+        text: "Get verified so candidates know your company is legitimate.",
+    },
+    {
+        icon: Sparkles,
+        text: "Showcase your culture, website, and team size on every role.",
+    },
+    {
+        icon: CircleCheck,
+        text: "Unlock job posting and applicant management from your dashboard.",
+    },
+];
 
 export default function CompanyNotRegistered() {
-  const [isRegisterModalOpen, setIsRegisterModalOpen] =
-    useState(false);
+    const router = useRouter();
+    const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
-  return (
-    <>
-      <main className="flex min-h-screen items-center justify-center bg-[#111111] px-4 text-white">
-        <section className="w-full max-w-xl text-center">
+    const handleSuccess = () => {
+        setIsRegisterModalOpen(false);
+        router.refresh();
+    };
 
-          {/* Illustration */}
-          <div className="relative mx-auto mb-8 h-44 w-44">
-
-            <div
-              className="
-                absolute
-                left-1/2
-                top-1/2
-                h-40
-                w-36
-                -translate-x-1/2
-                -translate-y-1/2
-                rotate-[-4deg]
-                rounded-[24px]
-                border
-                border-[#3a3a3a]
-                bg-[#202020]
-              "
-            >
-              <div className="absolute inset-[18px] rounded-[10px] bg-[#303030]">
-                <div className="absolute left-3 top-3 h-6 w-6 rounded-[5px] bg-[#4a4a4a]" />
-
-                <div className="absolute left-12 top-[18px] h-1.5 w-12 rounded-full bg-[#454545]" />
-
-                <div className="absolute left-3 right-3 top-12 space-y-2">
-                  <div className="h-1.5 w-[85%] rounded-full bg-[#494949]" />
-                  <div className="h-1.5 w-[68%] rounded-full bg-[#494949]" />
-                  <div className="h-1.5 w-[78%] rounded-full bg-[#494949]" />
-                </div>
-
-                <Factory
-                  size={25}
-                  className="absolute bottom-2 right-2 rotate-[8deg] text-[#676767]"
+    return (
+        <>
+            <Container className="py-8 md:py-10">
+                <PageHeader
+                    eyebrow="Company"
+                    title="My company"
+                    description="Register your company profile to start hiring on HireLoop."
                 />
-              </div>
-            </div>
 
-            <div
-              className="
-                absolute
-                right-[-2px]
-                top-[-5px]
-                flex
-                h-11
-                w-11
-                items-center
-                justify-center
-                rounded-full
-                bg-white
-                text-black
-              "
-            >
-              <Briefcase size={19} />
-            </div>
-          </div>
+                <SurfaceCard className="mt-8 overflow-hidden">
+                    <div className="grid gap-8 p-7 md:grid-cols-[minmax(0,1fr)_300px] md:items-center md:p-10">
+                        <div>
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-indigo-300">
+                                <Factory size={12} aria-hidden="true" />
+                                Company profile
+                            </span>
 
-          {/* Heading */}
-          <h1 className="text-[20px] font-medium">
-            Company not registered yet
-          </h1>
+                            <h2 className="mt-4 max-w-lg text-2xl font-semibold tracking-tight text-white">
+                                Set up your company to start hiring
+                            </h2>
 
-          <p className="mx-auto mt-3 max-w-[330px] text-[11px] leading-[1.6] text-[#999]">
-            Set up your business profile to start posting
-            high-performance job listings and manage your
-            talent loop.
-          </p>
+                            <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">
+                                Add your business details once, then publish
+                                roles and manage applicants from a single
+                                dashboard.
+                            </p>
 
-          {/* Buttons */}
-          <div className="mt-8 flex justify-center gap-3">
+                            <ul className="mt-6 space-y-3">
+                                {benefits.map(({ icon: Icon, text }) => (
+                                    <li
+                                        key={text}
+                                        className="flex items-start gap-2.5 text-xs leading-relaxed text-zinc-400"
+                                    >
+                                        <Icon
+                                            size={15}
+                                            aria-hidden="true"
+                                            className="mt-0.5 shrink-0 text-indigo-400"
+                                        />
+                                        {text}
+                                    </li>
+                                ))}
+                            </ul>
 
-            {/* OPEN MODAL */}
-            <Button
-              variant="primary"
-              onPress={() => setIsRegisterModalOpen(true)}
-              className="
-                h-11
-                min-w-[170px]
-                rounded-md
-                bg-white
-                text-[11px]
-                font-medium
-                text-black
-                hover:bg-gray-200
-              "
-            >
-              Register your company
-            </Button>
+                            <button
+                                type="button"
+                                onClick={() => setIsRegisterModalOpen(true)}
+                                className={`${buttonStyles.primary} mt-7`}
+                            >
+                                Register your company
+                                <ArrowRight size={16} aria-hidden="true" />
+                            </button>
+                        </div>
 
-            <Button
-              variant="secondary"
-              className="
-                h-11
-                min-w-[112px]
-                rounded-md
-                border
-                border-[#343434]
-                bg-[#1b1b1b]
-                text-[11px]
-                text-white
-              "
-            >
-              View FAQ
-            </Button>
+                        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-zinc-300">
+                                <Factory size={24} aria-hidden="true" />
+                            </div>
 
-          </div>
+                            <p className="mt-4 text-sm font-semibold text-white">
+                                What you get
+                            </p>
 
-          <p className="mt-14 text-[9px] text-[#606060]">
-            Need specialized assistance? Contact our enterprise
-            support team.
-          </p>
-        </section>
-      </main>
+                            <ul className="mt-3 space-y-2.5 text-[11px] leading-relaxed text-zinc-500">
+                                <li>Company profile with logo and website</li>
+                                <li>Job posting dashboard and limits</li>
+                                <li>Applicant overview in one place</li>
+                            </ul>
 
-      {/* REGISTER COMPANY MODAL */}
-      <RegisterCompanyModal
-        isOpen={isRegisterModalOpen}
-        onOpenChange={setIsRegisterModalOpen}
-      />
-    </>
-  );
+                            <p className="mt-5 border-t border-white/[0.06] pt-4 text-[10px] leading-relaxed text-zinc-600">
+                                Your profile is reviewed before going live.
+                            </p>
+                        </div>
+                    </div>
+                </SurfaceCard>
+            </Container>
+
+            <RegisterCompanyModal
+                isOpen={isRegisterModalOpen}
+                onOpenChange={setIsRegisterModalOpen}
+                onSuccess={handleSuccess}
+            />
+        </>
+    );
 }

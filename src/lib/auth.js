@@ -1,9 +1,13 @@
 import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { client, db } from "./core/mongo";
 
-const client = new MongoClient(process.env.MONGODB_URI);
-const db = client.db(process.env.AUTH_DB_NAME);
+const publicRoles = new Set(["seeker", "recruiter"]);
+
+const plansForRole = {
+    seeker: "seeker_free",
+    recruiter: "recruiter_free",
+};
 
 export const auth = betterAuth({
     database: mongodbAdapter(db, { client }),
@@ -22,7 +26,53 @@ export const auth = betterAuth({
                 required: true,
                 input: true,
                 default: "seeker",
-            }
+            },
+            plan: {
+                type: "string",
+                required: false,
+                input: true,
+                default: "seeker_free",
+            },
+        },
+    },
+    databaseHooks: {
+        user: {
+            create: {
+                before: async (user) => {
+                    // Public sign-up may only create seekers or recruiters.
+                    // Admin accounts are promoted directly in the database.
+                    const role = publicRoles.has(user.role)
+                        ? user.role
+                        : "seeker";
+
+                    return {
+                        data: {
+                            ...user,
+                            role,
+                            plan: plansForRole[role],
+                        },
+                    };
+                },
+            },
+            update: {
+                before: async (data, context) => {
+                    // Authorization fields may only change through guarded admin
+                    // actions, never through Better Auth's update-user endpoint.
+                    const sessionUser = context?.context?.session?.user;
+
+                    if (!sessionUser) {
+                        return;
+                    }
+
+                    return {
+                        data: {
+                            ...data,
+                            role: sessionUser.role,
+                            plan: sessionUser.plan,
+                        },
+                    };
+                },
+            },
         },
     },
 });

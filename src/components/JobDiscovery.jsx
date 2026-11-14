@@ -1,18 +1,12 @@
 // components/JobDiscovery.jsx  (HeroUI v3)
 import NextLink from "next/link";
 import { Card, buttonVariants } from "@heroui/react";
-import { MapPin, Briefcase, CircleDollar, ArrowRight } from "@gravity-ui/icons";
-
-// Replace with data from your API / database
-const jobs = Array.from({ length: 6 }, (_, i) => ({
-  id: i + 1,
-  title: "Frontend Developer",
-  description:
-    "Showcase your commitment to diversity and inclusion by highlighting initiatives",
-  location: "New York, USA",
-  type: "Hybrid",
-  salary: "€25–€40/hour",
-}));
+import {
+  MapPin,
+  Briefcase,
+  CircleDollar,
+  ArrowRight,
+} from "@gravity-ui/icons";
 
 function Tag({ icon: Icon, children }) {
   return (
@@ -23,7 +17,7 @@ function Tag({ icon: Icon, children }) {
   );
 }
 
-export default function JobDiscovery({ items = jobs }) {
+export default function JobDiscovery({ items = [] }) {
   return (
     <section className="bg-black px-6 py-50 text-white">
       <div>
@@ -40,34 +34,45 @@ export default function JobDiscovery({ items = jobs }) {
         </div>
 
         {/* Cards */}
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((job) => (
-            <li key={job.id}>
-              <Card className="h-full rounded-2xl bg-zinc-900 text-white shadow-none">
-                <Card.Content className="flex h-full flex-col gap-3 p-5">
-                  <h3 className="text-xl font-medium">{job.title}</h3>
-                  <p className="text-xs leading-relaxed text-zinc-400">
-                    {job.description}
-                  </p>
+        {items.length > 0 ? (
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((job) => (
+              <li key={job.id || job.href}>
+                <Card className="h-full rounded-2xl bg-zinc-900 text-white shadow-none">
+                  <Card.Content className="flex h-full flex-col gap-3 p-5">
+                    <h3 className="text-xl font-medium">{job.title}</h3>
+                    <p className="text-xs leading-relaxed text-zinc-400">
+                      {job.description}
+                    </p>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Tag icon={MapPin}>{job.location}</Tag>
-                    <Tag icon={Briefcase}>{job.type}</Tag>
-                    <Tag icon={CircleDollar}>{job.salary}</Tag>
-                  </div>
+                    <div className="flex flex-wrap gap-2">
+                      {job.location && <Tag icon={MapPin}>{job.location}</Tag>}
+                      {job.type && <Tag icon={Briefcase}>{job.type}</Tag>}
+                      {job.salary && (
+                        <Tag icon={CircleDollar}>{job.salary}</Tag>
+                      )}
+                    </div>
 
-                  <NextLink
-                    href={`/jobs/${job.id}`}
-                    className={`${buttonVariants({ variant: "ghost", size: "sm" })} mt-auto w-fit text-white`}
-                  >
-                    Apply now
-                    <ArrowRight width={14} height={14} aria-hidden />
-                  </NextLink>
-                </Card.Content>
-              </Card>
-            </li>
-          ))}
-        </ul>
+                    <NextLink
+                      href={job.href || `/jobs/${job.id}`}
+                      className={`${buttonVariants({ variant: "ghost", size: "sm" })} mt-auto w-fit text-white`}
+                    >
+                      View job
+                      <ArrowRight width={14} height={14} aria-hidden />
+                    </NextLink>
+                  </Card.Content>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-14 text-center">
+            <p className="text-sm text-zinc-400">
+              New roles are being added right now. Check back shortly or browse
+              the full board.
+            </p>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-8 flex justify-center">

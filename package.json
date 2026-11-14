@@ -12,22 +12,24 @@
     "@better-auth/mongo-adapter": "^1.7.7",
     "@heroui/react": "^3.2.6",
     "@heroui/styles": "^3.2.6",
+    "@stripe/stripe-js": "^10.1.0",
     "better-auth": "^1.7.7",
     "framer-motion": "^13.5.0",
     "lucide-react": "^1.49.0",
     "mongodb": "^7.7.0",
     "motion": "^14.0.0",
-    "next": "16.3.8",
+    "next": "^16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-icons": "^5.7.0"
+    "react-icons": "^5.7.0",
+    "stripe": "^23.0.0"
   },
   "devDependencies": {
     "@gravity-ui/icons": "^2.22.0",
     "@tailwindcss/postcss": "^4",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "^14.2.35",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.8",
     "tailwindcss": "^4"
   }
 }
