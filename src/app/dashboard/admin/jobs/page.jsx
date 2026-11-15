@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { ArrowUpRightFromSquare, Briefcase } from "@gravity-ui/icons";
+import {
+    ArrowUpRightFromSquare,
+    Briefcase,
+    Factory,
+} from "@gravity-ui/icons";
 import AdminActionForm from "@/components/admin/AdminActionForm";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -149,8 +153,28 @@ export default async function AdminJobsPage({ searchParams }) {
                                                     {job.location}
                                                 </p>
                                             </td>
-                                            <td className="px-5 py-4 text-zinc-400">
-                                                {job.companyName}
+                                            <td className="px-5 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    {job.companyLogoUrl ? (
+                                                        <img
+                                                            src={
+                                                                job.companyLogoUrl
+                                                            }
+                                                            alt=""
+                                                            className="h-8 w-8 rounded-lg border border-white/10 object-cover"
+                                                        />
+                                                    ) : (
+                                                        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-zinc-500">
+                                                            <Factory
+                                                                size={15}
+                                                                aria-hidden="true"
+                                                            />
+                                                        </span>
+                                                    )}
+                                                    <span className="text-zinc-300">
+                                                        {job.companyName}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="px-5 py-4">
                                                 <p className="text-zinc-300">

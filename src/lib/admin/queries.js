@@ -142,6 +142,7 @@ const loadCompanies = async () =>
                 projection: {
                     companyName: 1,
                     recruiterId: 1,
+                    logoUrl: 1,
                 },
             }
         )
@@ -180,6 +181,7 @@ const enrichJobs = async (jobs) => {
             id,
             title: job.title || "Untitled job",
             companyName: job.companyName || company?.companyName || "—",
+            companyLogoUrl: company?.logoUrl || "",
             recruiterName:
                 recruiter?.name ||
                 recruiter?.email ||
