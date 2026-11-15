@@ -11,6 +11,13 @@ const plansForRole = {
 
 export const auth = betterAuth({
     database: mongodbAdapter(db, { client }),
+
+    trustedOrigins: [
+        "https://hireloop-steel.vercel.app",
+        "https://hireloop-9h0jom1gu-muntasir-fahads-projects.vercel.app",
+        "http://localhost:3000",
+    ],
+
     emailAndPassword: {
         enabled: true,
     },
