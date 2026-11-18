@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-    AvatarRoot,
-    AvatarImage,
-    AvatarFallback,
-} from "@heroui/react";
-import {
     ArrowRight,
     Briefcase,
     Calendar,
@@ -21,6 +16,8 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import SurfaceCard from "@/components/ui/SurfaceCard";
 import { buttonStyles } from "@/components/ui/buttonStyles";
+import ProfileDetailsEditor from "@/components/dashboard/ProfileDetailsEditor";
+import ProfilePhotoEditor from "@/components/dashboard/ProfilePhotoEditor";
 import { getRecuiterCompanies } from "@/lib/api/companies";
 import { getUserSession } from "@/lib/core/session";
 
@@ -93,13 +90,23 @@ export default async function RecruiterProfilePage() {
                 title="Recruiter profile"
                 description="Your account details and the company you hire for."
                 actions={
-                    <Link
-                        href="/dashboard/recruiter/my-company"
-                        className={buttonStyles.secondary}
-                    >
-                        Manage company
-                        <ArrowRight size={15} aria-hidden="true" />
-                    </Link>
+                    <>
+                        <ProfileDetailsEditor
+                            user={{
+                                name: user?.name,
+                                email: user?.email,
+                                phoneNumber: user?.phoneNumber,
+                            }}
+                        />
+
+                        <Link
+                            href="/dashboard/recruiter/my-company"
+                            className={buttonStyles.secondary}
+                        >
+                            Manage company
+                            <ArrowRight size={15} aria-hidden="true" />
+                        </Link>
+                    </>
                 }
             />
 
@@ -107,18 +114,10 @@ export default async function RecruiterProfilePage() {
                 {/* Profile banner */}
                 <SurfaceCard className="flex flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between md:p-7">
                     <div className="flex min-w-0 items-center gap-4">
-                        <AvatarRoot
-                            size="lg"
-                            className="h-16 w-16 shrink-0 rounded-2xl border border-white/10 bg-white/[0.04]"
-                        >
-                            <AvatarImage
-                                src={user?.image || "/images/profile.jpg"}
-                                alt={user?.name || "Recruiter"}
-                            />
-                            <AvatarFallback className="text-xl font-bold">
-                                {user?.name?.charAt(0)?.toUpperCase() || "R"}
-                            </AvatarFallback>
-                        </AvatarRoot>
+                        <ProfilePhotoEditor
+                            image={user?.image || ""}
+                            name={user?.name || "Recruiter"}
+                        />
 
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">

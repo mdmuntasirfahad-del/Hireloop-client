@@ -65,7 +65,8 @@ function DetailTile({ icon: Icon, label, children }) {
 
 export default function CompanyDetails({ recruiterCompany }) {
     const router = useRouter();
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
     const [companyData, setCompanyData] = useState(recruiterCompany);
 
     if (!companyData) return null;
@@ -79,9 +80,11 @@ export default function CompanyDetails({ recruiterCompany }) {
         setCompanyData((previous) => ({
             ...previous,
             ...updatedCompany,
+            isApproved: false,
             status: "Pending",
         }));
-        setIsEditModalOpen(false);
+        setIsDetailsModalOpen(false);
+        setIsLogoModalOpen(false);
         router.refresh();
     };
 
@@ -100,11 +103,12 @@ export default function CompanyDetails({ recruiterCompany }) {
 
                             <button
                                 type="button"
-                                onClick={() => setIsEditModalOpen(true)}
+                                onClick={() => setIsDetailsModalOpen(true)}
                                 className={buttonStyles.secondary}
+                                aria-label="Edit company details"
                             >
                                 <Pencil size={14} aria-hidden="true" />
-                                Edit company
+                                Edit details
                             </button>
                         </div>
                     }
@@ -113,18 +117,30 @@ export default function CompanyDetails({ recruiterCompany }) {
                 <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
                     <SurfaceCard className="p-6 md:p-7">
                         <div className="flex flex-col gap-5 border-b border-white/[0.06] pb-6 sm:flex-row sm:items-center">
-                            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] text-zinc-400">
-                                {companyData.logoUrl ? (
-                                    <img
-                                        src={companyData.logoUrl}
-                                        alt={`${companyName} logo`}
-                                        loading="lazy"
-                                        decoding="async"
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <Factory size={28} aria-hidden="true" />
-                                )}
+                            <div className="relative shrink-0">
+                                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] text-zinc-400">
+                                    {companyData.logoUrl ? (
+                                        <img
+                                            src={companyData.logoUrl}
+                                            alt={`${companyName} logo`}
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <Factory size={28} aria-hidden="true" />
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setIsLogoModalOpen(true)}
+                                    aria-label="Change company logo"
+                                    title="Change company logo"
+                                    className="absolute -bottom-1.5 -right-1.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-[#18181b] text-zinc-300 shadow-lg transition-colors hover:border-indigo-400/40 hover:bg-indigo-500/15 hover:text-indigo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                                >
+                                    <Pencil size={12} aria-hidden="true" />
+                                </button>
                             </div>
 
                             <div className="min-w-0">
@@ -229,16 +245,25 @@ export default function CompanyDetails({ recruiterCompany }) {
                         </ul>
 
                         <p className="mt-5 border-t border-white/[0.06] pt-4 text-[11px] leading-relaxed text-zinc-500">
-                            Editing your company details resets the profile to
-                            pending review.
+                            Editing your company profile resets it to pending
+                            review.
                         </p>
                     </SurfaceCard>
                 </div>
             </Container>
 
             <RegisterCompanyModal
-                isOpen={isEditModalOpen}
-                onOpenChange={setIsEditModalOpen}
+                mode="details"
+                isOpen={isDetailsModalOpen}
+                onOpenChange={setIsDetailsModalOpen}
+                onSuccess={handleUpdateSuccess}
+                initialData={companyData}
+            />
+
+            <RegisterCompanyModal
+                mode="logo"
+                isOpen={isLogoModalOpen}
+                onOpenChange={setIsLogoModalOpen}
                 onSuccess={handleUpdateSuccess}
                 initialData={companyData}
             />

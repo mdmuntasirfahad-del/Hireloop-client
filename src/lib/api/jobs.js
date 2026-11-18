@@ -19,7 +19,7 @@ const normalizeCompanyName = (value) =>
 const loadCompanies = async () => {
     try {
         const companies = await serverFetch("/api/companies", {
-            next: { revalidate: 300 },
+            next: { revalidate: 300, tags: ["companies"] },
         });
 
         return Array.isArray(companies) ? companies : [];
